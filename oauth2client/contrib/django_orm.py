@@ -31,7 +31,7 @@ from oauth2client.client import Storage as BaseStorage
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 
-class CredentialsField(six.with_metaclass(models.SubfieldBase, models.Field)):
+class CredentialsField(models.Field):
 
     def __init__(self, *args, **kwargs):
         if 'null' not in kwargs:
@@ -40,6 +40,11 @@ class CredentialsField(six.with_metaclass(models.SubfieldBase, models.Field)):
 
     def get_internal_type(self):
         return 'TextField'
+
+    def from_db_value(self, value, expression, connection, context):
+        if value is None:
+            return None
+        return pickle.loads(base64.b64decode(smart_bytes(value)))
 
     def to_python(self, value):
         if value is None:
@@ -68,7 +73,7 @@ class CredentialsField(six.with_metaclass(models.SubfieldBase, models.Field)):
         return self.get_prep_value(value)
 
 
-class FlowField(six.with_metaclass(models.SubfieldBase, models.Field)):
+class FlowField(models.Field):
 
     def __init__(self, *args, **kwargs):
         if 'null' not in kwargs:
@@ -77,6 +82,11 @@ class FlowField(six.with_metaclass(models.SubfieldBase, models.Field)):
 
     def get_internal_type(self):
         return 'TextField'
+
+    def from_db_value(self, value, expression, connection, context):
+        if value is None:
+            return None
+        return pickle.loads(base64.b64decode(value))
 
     def to_python(self, value):
         if value is None:
